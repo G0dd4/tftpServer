@@ -28,24 +28,23 @@ struct tftpFrameOrder readConnectionRequest(int socketFd)
 
 struct tftpFrameOrder parseConnectionRequest(char *data)
 {
+    int fileNameLength;
+    int modeLength;
     struct tftpFrameOrder orderStructur;
+    memset(&orderStructur,0,sizeof(struct tftpFrameOrder));
+    
     orderStructur.opcode = (data[0] << 8) + data[1]; // get opCode
 
     // get fileName
-    int fileNameLength;
-    int modeLength;
-
-    for(fileNameLength = 0; fileNameLength < FILE_NAME_LENGTH && data[fileNameLength+2]!=0; fileNameLength++){
-        orderStructur.fileName[fileNameLength] = data[fileNameLength+2];
+    for(fileNameLength = 0; fileNameLength < FILE_NAME_LENGTH && data[fileNameLength+OPTION_CODE_LENGTH]!=0; fileNameLength++){
+        orderStructur.fileName[fileNameLength] = data[fileNameLength+OPTION_CODE_LENGTH];
     }
-    orderStructur.fileName[fileNameLength] = '\0';
+    fileNameLength++; // add \0 to length
     
     // get mode
-    for(modeLength = 0; modeLength < MODE_LENGTH && data[modeLength+3+fileNameLength]!=0; modeLength++){
-        orderStructur.mode[modeLength] = data[modeLength+3+fileNameLength];
+    for(modeLength = 0; modeLength < MODE_LENGTH && data[modeLength+OPTION_CODE_LENGTH+fileNameLength]!=0; modeLength++){
+        orderStructur.mode[modeLength] = data[modeLength+OPTION_CODE_LENGTH+fileNameLength];
     }
-    orderStructur.mode[modeLength] = '\0';
-
     return orderStructur;
 }
 
