@@ -1,0 +1,9 @@
+.vscode/*
+.history/
+*.vsix
+bin/
+bin/*
+build/
+build/*
+testFile/
+testFile/*
