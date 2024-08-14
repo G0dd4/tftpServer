@@ -2,11 +2,13 @@
 #include "tftpProtocol.h"
 
 int main(int argc, char** argv){
-    int socketOrderFd = initTftpServer();    
+    int socketOrderFd = initTftpServerSocket();    
     puts("socket created");
     while(1){
-        struct tftpFrameOrder connectionFrame = readConnectionRequest(socketOrderFd);
+        struct clientInformation clientInfo;
 
+        struct tftpFrameOrder connectionFrame = readConnectionRequest(socketOrderFd, &clientInfo);
+        int clientFd = initTftpClientSocket(clientInfo);
         switch(connectionFrame.opcode)
         {
         case(RRQ):
@@ -16,9 +18,10 @@ int main(int argc, char** argv){
             puts("WRQ");
             break;
         default:
-            puts("request error\n");
+            puts("request error");
+            sendErrorPacket(clientFd,clientInfo,ILLEGAL_OPERATION,"Illegal TFTP operation.");
         }
 
     }
-    closeTftpServer(socketOrderFd);
+    stopTftpServer(socketOrderFd);
 }

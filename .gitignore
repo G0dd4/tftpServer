@@ -5,5 +5,5 @@ bin/
 bin/*
 build/
 build/*
-testFile/
-testFile/*
+tools/
+tools/*

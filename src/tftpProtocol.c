@@ -8,12 +8,17 @@
 #include "tftpProtocol.h"
 
 
-int initTftpServer()
+int initTftpServerSocket()
 {
     return initServerSocket(REQUEST_PORT);
 }
 
-struct tftpFrameOrder readConnectionRequest(int socketFd)
+int initTftpClientSocket(struct clientInformation clientInfo)
+{
+    return initClientSocket(clientInfo.addr, clientInfo.port);
+}
+
+struct tftpFrameOrder readConnectionRequest(int socketFd, struct clientInformation* clientInfo)
 {
     char data[FRAME_RRQ_WRQ];
     struct sockaddr_in clientAddr;
@@ -22,7 +27,9 @@ struct tftpFrameOrder readConnectionRequest(int socketFd)
         perror("cannot read socket");
         exit(-1);
     }
-
+    clientInfo->addr = clientAddr.sin_addr.s_addr;
+    clientInfo->port = htons(clientAddr.sin_port);
+    
     return parseConnectionRequest(data);
 }
 
@@ -48,7 +55,22 @@ struct tftpFrameOrder parseConnectionRequest(char *data)
     return orderStructur;
 }
 
-void closeTftpServer(int socketFd)
+void  sendErrorPacket(int clientFd, struct clientInformation clientInfo,ErrorCodes idError, char* errorMsg)
+{
+    // building frame
+    int packetLength = strlen(errorMsg)+5;
+
+    char msg[packetLength];
+    memset(msg,0,sizeof(msg));
+    msg[0] = 0; msg[1] = ERROR;msg[2] = 0;msg[3] = idError;
+    for(int i = 0; i < strlen(errorMsg);i++){
+        msg[4+i] = errorMsg[i];
+    }
+    
+    sendFrame(clientFd, msg, packetLength, clientInfo.port, clientInfo.addr);
+}
+
+void stopTftpServer(int socketFd)
 {
     close(socketFd);   
 }

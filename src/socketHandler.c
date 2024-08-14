@@ -11,22 +11,8 @@
 
 int initServerSocket(unsigned short port)
 {
-    struct sockaddr_in socketAddr;
-    int optval = 1;
-    
-    int serverFd = socket(AF_INET, SOCK_DGRAM, 0);
-    
-    if(serverFd == -1){
-        return -1;
-    }
-
-	setsockopt(serverFd, SOL_SOCKET, SO_REUSEADDR,
-		   (const void *)&optval, sizeof(int));
-
-    bzero((char *)&socketAddr, sizeof(socketAddr));
-    socketAddr.sin_family = AF_INET;
-    socketAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    socketAddr.sin_port = htons((unsigned short)port);
+    int serverFd = creatSocket();
+    struct sockaddr_in socketAddr = creatInfoAddr(port, NULL);
 
     if (bind(serverFd, (struct sockaddr *) &socketAddr, sizeof(socketAddr)) < 0) {
         perror("server: bind()");
@@ -36,6 +22,39 @@ int initServerSocket(unsigned short port)
     return serverFd;
 }
 
+int initClientSocket(uint32_t addr, unsigned short port)
+{
+    int clientFd = creatSocket();
+    return clientFd;
+}
+
+int creatSocket()
+{
+    int optval = 1;
+    int socketFd = socket(AF_INET, SOCK_DGRAM, 0); 
+    if(socketFd == -1){
+        return -1;
+    }
+    setsockopt(socketFd, SOL_SOCKET, SO_REUSEADDR,
+		   (const void *)&optval, sizeof(int));
+    return  socketFd;
+}
+
+struct sockaddr_in creatInfoAddr(unsigned short port, uint32_t *addr)
+{
+    struct sockaddr_in socketAddr;
+    bzero((char *)&socketAddr, sizeof(socketAddr));
+    
+    socketAddr.sin_family = AF_INET;
+    socketAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    if(addr != NULL){
+        socketAddr.sin_addr.s_addr = *addr;    
+    }
+    socketAddr.sin_port = htons((unsigned short)port);
+    
+    return socketAddr;
+}
+
 int readFrame(int orderFd, char *clientMsg, struct sockaddr_in *clientAddr)
 {
     unsigned int length =  sizeof(struct sockaddr_in);
@@ -43,4 +62,15 @@ int readFrame(int orderFd, char *clientMsg, struct sockaddr_in *clientAddr)
         return -1;
     }
     return 0; 
+}
+
+int sendFrame(int socketFd, char* dataToSend, size_t length,uint16_t port, uint32_t addr)
+{
+    struct sockaddr_in servaddr = creatInfoAddr(port, &addr);
+    if (sendto(socketFd, dataToSend, length, 0, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0){
+        perror("cannot send message");
+        close(socketFd);
+        return -1;
+    }
+    return 0;
 }
