@@ -70,7 +70,7 @@ void  sendErrorPacket(int clientFd, struct clientInformation clientInfo,ErrorCod
     sendFrame(clientFd, msg, packetLength, clientInfo.port, clientInfo.addr);
 }
 
-void stopTftpServer(int socketFd)
+void stopTftpSocket(int socketFd)
 {
     close(socketFd);   
 }

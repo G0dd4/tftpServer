@@ -40,14 +40,10 @@ struct tftpFrameOrder
 };
 
 int initTftpServerSocket();
-
 int initTftpClientSocket(struct clientInformation clientInfo);
 
 struct tftpFrameOrder readConnectionRequest(int socketFd, struct clientInformation* clientInfo);
-
 struct tftpFrameOrder parseConnectionRequest(char* data);
 
 void sendErrorPacket(int clientFd, struct clientInformation clientInfo,ErrorCodes idError, char* errorMsg);
-
-
-void stopTftpServer(int socketFd);
+void stopTftpSocket(int socketFd);

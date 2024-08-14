@@ -21,7 +21,7 @@ int main(int argc, char** argv){
             puts("request error");
             sendErrorPacket(clientFd,clientInfo,ILLEGAL_OPERATION,"Illegal TFTP operation.");
         }
-
+        stopTftpSocket(clientFd);
     }
-    stopTftpServer(socketOrderFd);
+    stopTftpSocket(socketOrderFd);
 }
