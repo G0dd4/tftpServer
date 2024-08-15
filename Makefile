@@ -17,9 +17,6 @@ fileHandler.o: src/fileHandler.c
 	$(CC) -c -Wall $(INCLUDE) src/fileHandler.c 
 	mv fileHandler.o build/
 
-build: main.o socketHandler.o tftpProtocol.o
-	$(CC) -o tftpServ build/main.o build/socketHandler.o build/tftpProtocol.o
-	mv tftpServ bin/
 start: 
 	bin/tftpServ
 clean:
