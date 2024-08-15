@@ -1,6 +1,7 @@
 #include <stdint.h>
 
 #define DATA_BLOCK 512
+#define HEADER 4
 #define REQUEST_PORT 1069
 #define FRAME_RRQ_WRQ 512
 #define OPTION_CODE_LENGTH 2
@@ -52,7 +53,7 @@ char* tftpGenerateBLocks(int* sizeBlock,char *rawData, int fileLength, uint16_t 
 void tftpSendDataFrame(int clientFd, struct clientInformation clientInfo,char* block, int sizeBlock, uint16_t idBlock);
 
 int tftpWaitForACK(int clientFd,struct clientInformation clientInfo,uint16_t idBlock);
-int tftpSendACKFrame(int socketFd, struct clientInformation clientInfo);
+void tftpSendACKFrame(int socketFd, struct clientInformation clientInfo, uint16_t idBlock);
 
 int tftpStartRRQProcess(int clientFd, struct clientInformation clientInfo, struct tftpFrameOrder frameOrder);
 int tftpStartWRQProcess(int clientFd, struct clientInformation clientInfo, struct tftpFrameOrder frameOrder);

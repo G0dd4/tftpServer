@@ -57,8 +57,8 @@ struct tftpFrameOrder parseConnectionRequest(char *data)
 int dataBlocksCount(int fileLength)
 {
     int blocksCount = fileLength/DATA_BLOCK;
-    blocksCount += fileLength%DATA_BLOCK == 0 ? 0 : 1;
     return blocksCount;
+    blocksCount += fileLength%DATA_BLOCK == 0 ? 0 : 1;
 }
 
 char* tftpGenerateBLocks(int* sizeBlock,char *rawData, int fileLength, uint16_t idBlock, int nbBlocks)
@@ -140,13 +140,38 @@ int tftpStartRRQProcess(int clientFd, struct clientInformation clientInfo, struc
     return 0;
 }
 
-int tftpSendACKFrame(int socketFd, struct clientInformation clientInfo){
-
+void tftpSendACKFrame(int socketFd, struct clientInformation clientInfo, uint16_t idBlock){
+    int length = 4;
+    char frameACK[4];
+    frameACK[0] = 0; frameACK[1] = ACK; frameACK[2] = (idBlock>>8)&0xff; frameACK[3] = (idBlock)&0xff;
+    sendFrame(socketFd, frameACK, length,clientInfo.port,clientInfo.addr);
 }
 
 int tftpStartWRQProcess(int clientFd, struct clientInformation clientInfo, struct tftpFrameOrder frameOrder)
 {
-    
+    int pathLength = strlen(frameOrder.fileName) + strlen("path/");
+    char path[pathLength];    
+    strcpy(path, "path/");
+    strcat(path, frameOrder.fileName);
+
+    if(!isFileExist(path)){
+        sendErrorPacket(clientFd,clientInfo,FILE_ALREADY_EXISTS,"File already exists");
+        return -1;
+    }
+    int fileFd = createFile(path);
+    tftpSendACKFrame(clientFd,clientInfo,0);
+    int iErr = 0, length = 0;
+    uint16_t idBlock = 1;
+    do{
+        char dataBlock[DATA_BLOCK+HEADER];
+        length = readFrame(clientFd,dataBlock,NULL)-HEADER;
+        char* block = (char*) malloc(length*sizeof(char));
+        memcpy(block,&dataBlock[HEADER],length);
+        writeFile(fileFd,block,length);
+        tftpSendACKFrame(clientFd,clientInfo,idBlock);
+        free(block);
+        idBlock++;
+    }while (!iErr&&length == DATA_BLOCK);
     return 0;
 }
 

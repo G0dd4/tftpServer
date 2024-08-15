@@ -71,10 +71,7 @@ int readFrame(int orderFd, char *clientMsg, struct sockaddr_in *clientAddr)
     if(clientAddr != NULL)
         length = sizeof(struct sockaddr_in);
     
-    if(recvfrom(orderFd, clientMsg, 1024, 0,(struct sockaddr*)clientAddr, &length) < 0){
-        return -1;
-    }
-    return 0; 
+    return recvfrom(orderFd, clientMsg, 1024, 0,(struct sockaddr*)clientAddr, &length);
 }
 
 int sendFrame(int socketFd, char* dataToSend, size_t length,uint16_t port, uint32_t addr)

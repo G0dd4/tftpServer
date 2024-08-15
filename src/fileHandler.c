@@ -29,6 +29,21 @@ int readFile(char* path, char** fileData){
     return sizeFile;
 }
 
+int writeFile(int fileFd, char *data, size_t lengthFile)
+{
+    return write(fileFd,data,lengthFile);
+}
+
+int createFile(char *fileName)
+{
+    return open(fileName,O_APPEND | O_CREAT | O_WRONLY,0755);
+}
+
+int isFileExist(char* fileName)
+{
+    return access(fileName,F_OK);
+}
+
 long getLengthFile(int fileFd)
 {
     off_t pos = lseek(fileFd,0,SEEK_CUR);
