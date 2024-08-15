@@ -50,7 +50,9 @@ struct tftpFrameOrder parseConnectionRequest(char* data);
 int dataBlocksCount(int fileLength);
 char* tftpGenerateBLocks(int* sizeBlock,char *rawData, int fileLength, uint16_t idBlock, int nbBlocks);
 void tftpSendDataFrame(int clientFd, struct clientInformation clientInfo,char* block, int sizeBlock, uint16_t idBlock);
+
 int tftpWaitForACK(int clientFd,struct clientInformation clientInfo,uint16_t idBlock);
+int tftpSendACKFrame(int socketFd, struct clientInformation clientInfo);
 
 int tftpStartRRQProcess(int clientFd, struct clientInformation clientInfo, struct tftpFrameOrder frameOrder);
 int tftpStartWRQProcess(int clientFd, struct clientInformation clientInfo, struct tftpFrameOrder frameOrder);

@@ -63,9 +63,9 @@ int dataBlocksCount(int fileLength)
 
 char* tftpGenerateBLocks(int* sizeBlock,char *rawData, int fileLength, uint16_t idBlock, int nbBlocks)
 {
-    int currentIndex = idBlock*DATA_BLOCK;
+    int currentIndex = (idBlock-1)*DATA_BLOCK;
     *sizeBlock = DATA_BLOCK;
-    if(idBlock+1 == nbBlocks){
+    if(idBlock == nbBlocks){
         *sizeBlock=fileLength%DATA_BLOCK;
     }
     char* block = malloc(sizeof(char)*(*sizeBlock));
@@ -91,8 +91,11 @@ int tftpWaitForACK(int clientFd,struct clientInformation clientInfo,uint16_t idB
         sendErrorPacket(clientFd,clientInfo,TIME_OUT,"Time out");
         return -1;
     }
-    uint16_t opCode = (ACKFrame[0]<<8) + ACKFrame[1];
-    uint16_t ACKIdBLock = (ACKFrame[2]<<8) + ACKFrame[3];
+    uint8_t msb, lsb;
+    msb = (uint8_t)ACKFrame[0]; lsb = (uint8_t) ACKFrame[1];
+    uint16_t opCode = (msb<<8) + lsb;
+    msb = (uint8_t)ACKFrame[2]; lsb = (uint8_t) ACKFrame[3];
+    uint16_t ACKIdBLock = (msb<<8) + lsb;
     
     if(opCode != ACK){
         sendErrorPacket(clientFd,clientInfo,ILLEGAL_OPERATION,"this is not an ACK packet");
@@ -123,13 +126,12 @@ int tftpStartRRQProcess(int clientFd, struct clientInformation clientInfo, struc
     int fileLength = readFile(path, &rawData);
     int nbBlocks = dataBlocksCount(fileLength);
 
-    for(uint16_t i = 0; i < nbBlocks;i++){
+    for(uint16_t i = 1; i <= nbBlocks;i++){
         int sizeBlock = 0;
         char* block = tftpGenerateBLocks(&sizeBlock,rawData, fileLength,i, nbBlocks);
         tftpSendDataFrame(clientFd, clientInfo ,block,sizeBlock,i);
         free(block);
         if(tftpWaitForACK(clientFd,clientInfo,i) == -1){
-            puts("exit now");
             break;
         }
     }
@@ -138,8 +140,13 @@ int tftpStartRRQProcess(int clientFd, struct clientInformation clientInfo, struc
     return 0;
 }
 
+int tftpSendACKFrame(int socketFd, struct clientInformation clientInfo){
+
+}
+
 int tftpStartWRQProcess(int clientFd, struct clientInformation clientInfo, struct tftpFrameOrder frameOrder)
 {
+    
     return 0;
 }
 
