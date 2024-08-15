@@ -3,6 +3,7 @@ int creatSocket();
 struct sockaddr_in creatInfoAddr(unsigned short port, uint32_t* addr);
 int initServerSocket(unsigned short port);
 int initClientSocket(uint32_t addr,unsigned short port);
+int setReceiveTimeOut(int socketFd);
 
 /// @brief read frame receives by server
 /// @param socketFd socket file description

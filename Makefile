@@ -1,8 +1,8 @@
 INCLUDE =-I include/
 CC = gcc
 
-auto: main.o socketHandler.o tftpProtocol.o
-	$(CC) -o tftpServ build/main.o build/socketHandler.o build/tftpProtocol.o
+auto: main.o socketHandler.o tftpProtocol.o fileHandler.o
+	$(CC) -o tftpServ build/main.o build/socketHandler.o build/tftpProtocol.o build/fileHandler.o
 	mv tftpServ bin/
 main.o: src/main.c
 	$(CC) -c -Wall $(INCLUDE) src/main.c 
@@ -13,6 +13,9 @@ socketHandler.o: src/socketHandler.c
 tftpProtocol.o: src/tftpProtocol.c
 	$(CC) -c -Wall $(INCLUDE) src/tftpProtocol.c 
 	mv tftpProtocol.o build/
+fileHandler.o: src/fileHandler.c
+	$(CC) -c -Wall $(INCLUDE) src/fileHandler.c 
+	mv fileHandler.o build/
 
 build: main.o socketHandler.o tftpProtocol.o
 	gcc -o tftpServ build/main.o build/socketHandler.o build/tftpProtocol.o

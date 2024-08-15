@@ -13,6 +13,7 @@ int main(int argc, char** argv){
         {
         case(RRQ):
             puts("RRQ");
+            tftpStartRRQProcess(clientFd, clientInfo, connectionFrame);
             break;
         case(WRQ):
             puts("WRQ");
@@ -21,6 +22,7 @@ int main(int argc, char** argv){
             puts("request error");
             sendErrorPacket(clientFd,clientInfo,ILLEGAL_OPERATION,"Illegal TFTP operation.");
         }
+        puts("work done");
         stopTftpSocket(clientFd);
     }
     stopTftpSocket(socketOrderFd);

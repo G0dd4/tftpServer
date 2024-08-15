@@ -5,6 +5,7 @@
 #include <netdb.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "socketHandler.h"
@@ -54,10 +55,22 @@ struct sockaddr_in creatInfoAddr(unsigned short port, uint32_t *addr)
     
     return socketAddr;
 }
+int setReceiveTimeOut(int socketFd){
+    struct timeval timeout;
+    timeout.tv_usec = 500*1000;
+    if (setsockopt (socketFd, SOL_SOCKET, SO_RCVTIMEO, &timeout,sizeof timeout) < 0){
+        perror("setsockopt failed\n");
+        return -1;
+    }
+    return 0;
+}
 
 int readFrame(int orderFd, char *clientMsg, struct sockaddr_in *clientAddr)
 {
-    unsigned int length =  sizeof(struct sockaddr_in);
+    unsigned int length =  0;
+    if(clientAddr != NULL)
+        length = sizeof(struct sockaddr_in);
+    
     if(recvfrom(orderFd, clientMsg, 1024, 0,(struct sockaddr*)clientAddr, &length) < 0){
         return -1;
     }

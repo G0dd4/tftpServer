@@ -23,7 +23,9 @@ typedef enum ErrorCodes{
     ILLEGAL_OPERATION = 4,
     UNKNOWN_TRANSFER_ID = 5,
     FILE_ALREADY_EXISTS = 6,
-    NO_SUCH_USER = 7
+    NO_SUCH_USER = 7,
+    TIME_OUT = 100,
+    NOT_IMPLEMENTED_YET = 200
 } ErrorCodes;
 
 struct clientInformation
@@ -44,6 +46,14 @@ int initTftpClientSocket(struct clientInformation clientInfo);
 
 struct tftpFrameOrder readConnectionRequest(int socketFd, struct clientInformation* clientInfo);
 struct tftpFrameOrder parseConnectionRequest(char* data);
+
+int dataBlocksCount(int fileLength);
+char* tftpGenerateBLocks(int* sizeBlock,char *rawData, int fileLength, uint16_t idBlock, int nbBlocks);
+void tftpSendDataFrame(int clientFd, struct clientInformation clientInfo,char* block, int sizeBlock, uint16_t idBlock);
+int tftpWaitForACK(int clientFd,struct clientInformation clientInfo,uint16_t idBlock);
+
+int tftpStartRRQProcess(int clientFd, struct clientInformation clientInfo, struct tftpFrameOrder frameOrder);
+int tftpStartWRQProcess(int clientFd, struct clientInformation clientInfo, struct tftpFrameOrder frameOrder);
 
 void sendErrorPacket(int clientFd, struct clientInformation clientInfo,ErrorCodes idError, char* errorMsg);
 void stopTftpSocket(int socketFd);
